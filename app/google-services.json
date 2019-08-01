@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "889230807947",
+    "firebase_url": "https://plisbroo.firebaseio.com",
+    "project_id": "plisbroo",
+    "storage_bucket": "plisbroo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:889230807947:android:da759f405f90f8eb",
+        "android_client_info": {
+          "package_name": "com.example.plisbroo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "889230807947-udhelsr733gj9pqr01krru05h56gvje4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plisbroo",
+            "certificate_hash": "90f9bac808e54d607dfbe0df5283d381a9a2bbb4"
+          }
+        },
+        {
+          "client_id": "889230807947-2ci44flih5hltajgpp3hp4jmu19tokbm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0go-eXDw_T-5bX7vcH1nVTJJYE5fPU_4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "889230807947-2ci44flih5hltajgpp3hp4jmu19tokbm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
