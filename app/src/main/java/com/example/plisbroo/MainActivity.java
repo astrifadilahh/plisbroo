@@ -3,11 +3,14 @@ package com.example.plisbroo;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,65 +21,80 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText email, password;
-    Button btnCreate;
-    TextView tvLogin;
-    FirebaseAuth mFirebaseAuth;
+    private Button btnRegister;
+    private EditText editEmail, editPasssword;
+    private TextView textLogin;
+    private ProgressDialog progressDialog;
+    private FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        email = findViewById(R.id.eEmail);
-        password = findViewById(R.id.ePass);
-        tvLogin = findViewById(R.id.tvLogin);
-        btnCreate = findViewById(R.id.bCreate);
-        btnCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String strEmail = email.getText().toString();
-                String strPass = password.getText().toString();
+        progressDialog = new ProgressDialog(this);
+        firebaseAuth = FirebaseAuth.getInstance();
+        if (firebaseAuth.getCurrentUser() != null){
+            finish();
+            startActivity(new Intent(getApplicationContext(), HalamanUtama.class));
+        }
 
-                System.out.println("aaaaa"+strEmail);
-                System.out.println("aaaaa"+strPass);
-                if (strEmail.isEmpty()){
-                    email.setError("Email error");
-                    email.requestFocus();
-                }
-                else if (strPass.isEmpty()){
-                    password.setError("Password error");
-                    password.requestFocus();
-                }
-                else if (strEmail.isEmpty() && strPass.isEmpty()){
-                    Toast.makeText(MainActivity.this, "Isi dulu", Toast.LENGTH_SHORT).show();
-                }
-                else if (!(strEmail.isEmpty() && strPass.isEmpty())){
-                    mFirebaseAuth.createUserWithEmailAndPassword(strEmail, strPass).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            System.out.println("aaaaaa masuk woy");
-                            if (!task.isSuccessful()){
-                                Toast.makeText(MainActivity.this,  "gagal, coba lagi", Toast.LENGTH_SHORT).show();
-                            }
-                            else {
-                                startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                            }
-                        }
-                    });
-                }
-                else {
-                    Toast.makeText(MainActivity.this, "Error woy", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        editEmail = (EditText) findViewById(R.id.eEmail);
+        editPasssword = (EditText) findViewById(R.id.ePass);
+        textLogin = (TextView) findViewById(R.id.tvLogin);
+        btnRegister = (Button) findViewById(R.id.bCreate);
 
-        tvLogin.setOnClickListener(new View.OnClickListener() {
+        textLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(i);
+            }
+        });
+
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view == btnRegister ){
+                    registerUser();
+                }
+                if (view == textLogin){
+                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                }
+            }
+        });
+    }
+
+    private void registerUser() {
+        String email = editEmail.getText().toString().trim();
+        String password = editPasssword.getText().toString().trim();
+
+        System.out.println("aaa"+email);
+        System.out.println("aaa"+password);
+
+        if(TextUtils.isEmpty(email)){
+            Toast.makeText(this,"isi email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(password)){
+            Toast.makeText(this, "isi password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressDialog.setMessage("Registering Please Wait");
+        progressDialog.show();
+
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()){
+                        finish();
+                        startActivity(new Intent(getApplicationContext(), HalamanUtama.class));
+                }
+                else {
+                    Toast.makeText(MainActivity.this, "Couldn't register", Toast.LENGTH_SHORT).show();
+                }
+                progressDialog.dismiss();
             }
         });
     }

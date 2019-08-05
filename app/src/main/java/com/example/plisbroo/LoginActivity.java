@@ -3,8 +3,10 @@ package com.example.plisbroo;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,91 +19,87 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LoginActivity extends AppCompatActivity {
+import org.w3c.dom.Text;
 
-    EditText email, password;
-    Button btnLogin;
-    TextView tvRegis;
-    FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
+
+    private EditText editEmail, editPassword;
+    private Button btnLogin;
+    private TextView textRegis;
+    private ProgressDialog progressDialog;
+    private FirebaseAuth firebaseAuth;
+
+    private Button Button2;
+    private EditText editText6;
+    private EditText editText7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        email = findViewById(R.id.eEmail);
-        password = findViewById(R.id.ePass);
-        tvRegis = findViewById(R.id.tvRegister);
-        btnLogin = findViewById(R.id.bLogin);
-        
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-                if( mFirebaseUser != null){
-                    Toast.makeText(LoginActivity.this, "You are Logged in", Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(LoginActivity.this, HalamanUtama.class);
-                    startActivity(i);
-                }
-                else{
-                    Toast.makeText(LoginActivity.this, "Please Login", Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-        
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String strEmail = email.getText().toString();
-                String strPass = password.getText().toString();
+        firebaseAuth = FirebaseAuth.getInstance();
+        if(firebaseAuth.getCurrentUser() !=null) {
+            finish();
+            startActivity(new Intent(getApplicationContext(),HalamanUtama.class));
 
-                System.out.println("aaaaa"+strEmail);
-                System.out.println("aaaaa"+strPass);
-                if (strEmail.isEmpty()){
-                    email.setError("Email error");
-                    email.requestFocus();
-                }
-                else if (strPass.isEmpty()){
-                    password.setError("Password error");
-                    password.requestFocus();
-                }
-                else if (strEmail.isEmpty() && strPass.isEmpty()){
-                    Toast.makeText(LoginActivity.this, "Isi dulu", Toast.LENGTH_SHORT).show();
-                }
-                else if (!(strEmail.isEmpty() && strPass.isEmpty())){
-                    mFirebaseAuth.signInWithEmailAndPassword(strEmail, strPass).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (!task.isSuccessful()) {
-                                Toast.makeText(LoginActivity.this, "Login error", Toast.LENGTH_SHORT).show();
-                            }
-                            else{
-                                Intent i = new Intent(LoginActivity.this, HalamanUtama.class);
-                                startActivity(i);
-                            }
+        }
+
+        editEmail = (EditText) findViewById(R.id.etEmail);
+        editPassword = (EditText) findViewById(R.id.etPass);
+        btnLogin = (Button) findViewById(R.id.bLogin);
+        textRegis = (TextView) findViewById(R.id.tvRegister);
+
+        progressDialog = new ProgressDialog(this);
+
+        btnLogin.setOnClickListener(this);
+        textRegis.setOnClickListener(this);
+    }
+
+    private void userLogin(){
+        String email = editEmail.getText().toString().trim();
+        String password = editPassword.getText().toString().trim();
+
+        if (TextUtils.isEmpty(email)) {
+            //email is empty
+            Toast.makeText(this, "Please enter email", Toast.LENGTH_SHORT).show();
+            //stopping the function execution further
+            return;
+        }
+        if (TextUtils.isEmpty(password)) {
+            //password is empty
+            Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
+            //stopping the function execution further
+            return;
+        }
+        //if vallidation are ok
+        //we will first show a progressbar
+        progressDialog.setMessage("Register USer....");
+        progressDialog.show();
+
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.dismiss();
+                        if (task.isSuccessful()) {
+                            finish();
+                            startActivity(new Intent(getApplicationContext(), HalamanUtama.class));
                         }
-                    });
-                }
-                else {
-                    Toast.makeText(LoginActivity.this, "Error woy", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        tvRegis.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(i);
-            }
-        });
+                        progressDialog.dismiss();
+                    }
+                });
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    public void onClick(View view) {
+        if (view == btnLogin) {
+            userLogin();
+        }
+        if (view == textRegis) {
+            finish();
+            startActivity(new Intent(this, MainActivity.class));
+        }
+
     }
 }
